@@ -1,0 +1,11 @@
+// C++
+#include <string>
+#include <cassert>
+
+std::string reverse_utf8(const std::string &s);
+
+int main() {
+    assert(reverse_utf8("abc") == "cba");
+    assert(reverse_utf8("żółć") == "ćłóż");
+    assert(reverse_utf8("A😀B") == "B😀A");
+}

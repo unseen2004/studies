@@ -1,0 +1,1 @@
+#functiondefadd(a:int,b:int)->int:"""single-linedocstring#1"""returna+bdefmult(a:int,b:int)->int:"""amulti-linedocstring#2"""returna*bdefsuffix(l:str)->str:#addpoundsymboltotheendreturnf"{l}#"

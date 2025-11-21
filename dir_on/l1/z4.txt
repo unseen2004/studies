@@ -1,0 +1,13 @@
+--- ZADANIE 4: Błąd iloczynu odwrotności ---
+Szukanie najmniejszej liczby x w (1, 2) takiej, że x * (1/x) != 1.0 ...
+(To może zająć dłuższą chwilę)
+
+## (a) Znaleziono liczbę (pierwszą napotkaną):
+   Wartość x:         1.000000057228997
+   Wartość fl(1/x):   0.9999999427710061
+   Wynik fl(x*fl(1/x)): 0.9999999999999999 (co jest != 1.0)
+   (Znaleziono po sprawdzeniu 257736490 liczb)
+
+## (b) Najmniejsza taka liczba:
+   Ponieważ iterowaliśmy od 1.0 w górę, pierwsza znaleziona liczba
+   jest jednocześnie najmniejszą szukaną wartością: 1.000000057228997

@@ -1,0 +1,871 @@
+
+
+Autor: Maksymilian Kulakowski
+Data: 2025-11-09
+
+
+ZADANIE 1 - Wplyw niewielkich zmian danych na wyniki
+
+1. KROTKI OPIS PROBLEMU
+--------------------------------------------------------------------------------
+Celem zadania jest zbadanie wplywu niewielkich zmian w danych wejsciowych
+na wyniki obliczen iloczynu skalarnego. Powtarzamy zadanie 5 z listy 1, ale
+modyfikujemy wektor x:
+- z x[4] = 0.5772156649 usuwamy ostatnia cyfre 9, otrzymujac x[4] = 0.577215664
+- z x[5] = 0.3010299957 usuwamy ostatnia cyfre 7, otrzymujac x[5] = 0.301029995
+
+Zmiany sa rzedu 10^-10 i 7x10^-10. Iloczyn skalarny obliczamy czterema
+metodami (w przod, w tyl, od najwiekszego do najmniejszego, od najmniejszego
+do najwiekszego) w precyzji Float32 i Float64.
+
+2. ROZWIAZANIE
+--------------------------------------------------------------------------------
+Zaimplementowano cztery algorytmy obliczania iloczynu skalarnego:
+- Algorytm "w przod" - sumowanie od i=1 do n
+- Algorytm "w tyl" - sumowanie od i=n do 1
+- Algorytm "od najwiekszego do najmniejszego" - osobne sumowanie dodatnich
+  (malejaco) i ujemnych (rosnaco), potem suma czesciowa
+- Algorytm "od najmniejszego do najwiekszego" - odwrotnie do powyzszego
+
+Kazda metoda zostala uruchomiona dla:
+- oryginalnych danych z zadania 5
+- zmodyfikowanych danych (z usunietymi cyframi)
+- w precyzji Float32 i Float64
+
+Prawidlowa wartosc iloczynu skalarnego: -1.00657107x10^-11
+
+3. WYNIKI ORAZ ICH INTERPRETACJA
+--------------------------------------------------------------------------------
+
+3.1 Precyzja Float32
+
+Dla OBU zestawow danych (oryginalnych i zmodyfikowanych) wyniki sa IDENTYCZNE:
+- W przod: -0.4999443 (blad ~0.5)
+- W tyl: -0.4543457 (blad ~0.45)
+- Od najwiekszego/najmniejszego: -0.5 (blad ~0.5)
+
+Interpretacja: Float32 ma zbyt niska precyzje (~7 cyfr znaczacych), aby
+wykryc roznice rzedu 10^-10 w danych wejsciowych. Dodatkowo wyniki sa
+cakowicie bledne (blad rzedu 0.5 zamiast 10^-11), poniewaz iloczyny czastkowe
+roznia sie o wiele rzedow wielkosci, co prowadzi do utraty cyfr znaczacych.
+
+3.2 Precyzja Float64 - Oryginalne dane
+
+- W przod: 1.025x10^-10 (blad ~1.1x10^-10)
+- W tyl: -1.564x10^-10 (blad ~1.5x10^-10)
+- Od najwiekszego/najmniejszego: 0.0 (blad ~1x10^-11)
+
+Wyniki sa blisko prawidlowej wartosci (-1.00657107x10^-11), ale metody
+"w przod" i "w tyl" daja wieksze bledy.
+
+3.3 Precyzja Float64 - Zmodyfikowane dane
+
+- W przod: -0.004296342739891585 (blad ~0.0043)
+- W tyl: -0.004296342998713953 (blad ~0.0043)
+- Od najwiekszego/najmniejszego: -0.004296342842280865 (blad ~0.0043)
+
+KLUCZOWA OBSERWACJA: Wszystkie wyniki przesunely sie o ~0.0043, czyli o
+6 RZEDOW WIELKOSCI wiecej niz zmiana w danych wejsciowych!
+
+3.4 Analiza zrodel problemu
+
+Zmiany w danych:
+- x[4]: zmiana o 9x10^-10
+- x[5]: zmiana o 7x10^-10
+
+Wplyw na iloczyny czastkowe:
+- x[4]xy[4]: zmiana o 0.004296 (bo y[4] = 4773714.647 jest bardzo duze!)
+- x[5]xy[5]: zmiana o 1.3x10^-13 (y[5] = 0.000185049 jest male)
+
+Wnioski z analizy: Mala zmiana x[4] zostala WZMOCNIONA przez duzy wspolczynnik
+y[4] ≈ 4.8x10^6, co spowodowalo zmiane w iloczynie czastkowym rzedu 0.0043.
+To jest klasyczny przyklad ZLE UWARUNKOWANEGO zadania.
+
+4. WNIOSKI
+--------------------------------------------------------------------------------
+1. Uwarunkowanie zadania: Problem obliczania iloczynu skalarnego jest ZLE
+   UWARUNKOWANY, gdy wspolczynniki roznia sie znacznie co do wartosci
+   bezwzglednej. Mala zmiana w danych (rzedu 10^-10) zostala wzmocniona przez
+   duzy wspolczynnik (4.8x10^6) i spowodowala zmiane wyniku o 6 rzedow
+   wielkosci.
+
+2. Wplyw precyzji: Float32 jest cakowicie niewystarczajacy dla tego typu
+   obliczen - nie tylko nie wykrywa malych zmian w danych, ale rowniez daje
+   calkowicie bledne wyniki. Float64 wykrywa zmiany, ale rowniez wykazuje
+   znaczny blad.
+
+3. Stabilnosc algorytmow: Wszystkie cztery metody daly podobne bledy dla
+   zmodyfikowanych danych, co wskazuje, ze problem lezy w UWARUNKOWANIU
+   ZADANIA, a nie w stabilnosci algorytmu.
+
+4. Praktyczny wniosek: W obliczeniach numerycznych nawet bardzo male zmiany
+   w danych (np. bledy zaokraglen, bledy pomiarowe) moga prowadzic do
+   znacznych roznic w wynikach, jesli zadanie jest zle uwarunkowane. Nalezy
+   zawsze analizowac wskaznik uwarunkowania zadania przed przystapienjem do
+   obliczen.
+
+
+ZADANIE 2 - Wizualizacja funkcji i analiza granicy
+
+1. KROTKI OPIS PROBLEMU
+--------------------------------------------------------------------------------
+Celem zadania jest analiza funkcji f(x) = e^x * ln(1 + e^(-x)) pod katem jej
+zachowania dla duzych wartosci argumentu x. Zadanie polega na:
+- narysowaniu wykresu funkcji w co najmniej dwoch programach wizualizacyjnych
+- obliczeniu granicy lim(x->inf) f(x) analitycznie
+- porownaniu wykresu z obliczona granica
+- wyjasnieniu roznic miedzy teoretycznym zachowaniem funkcji a jej numeryczna
+  reprezentacja
+
+2. ROZWIAZANIE
+--------------------------------------------------------------------------------
+
+2.1 Analiza matematyczna - obliczenie granicy
+
+Dla funkcji f(x) = e^x * ln(1 + e^(-x)) obliczamy:
+lim(x->inf) e^x * ln(1 + e^(-x))
+
+Gdy x->inf, to e^(-x)->0, wiec ln(1 + e^(-x))->ln(1)=0.
+Otrzymujemy nieoznaczonosc typu "inf * 0".
+
+Przeksztalcamy wyrazenie uzywajac rozwinecia w szereg Taylora:
+ln(1 + e^(-x)) ≈ e^(-x) - e^(-2x)/2 + e^(-3x)/3 - ... dla malych e^(-x)
+
+Dla dominujacego wyrazu:
+f(x) ≈ e^x * e^(-x) = 1
+
+GRANICA TEORETYCZNA: lim(x->inf) f(x) = 1
+
+2.2 Implementacja
+
+Zaimplementowano:
+- Funkcje f(x) w formie bezposredniej
+- Obliczenia numeryczne dla x = 1, 5, 10, 20, 30, 40, 50, 100, 200, 300,
+  500, 700
+- Cztery wykresy funkcji dla zakresow [0,10], [0,100], [0,500] oraz porownanie
+  form obliczeniowych
+- Wizualizacje wykonano za pomoca pakietu Plots.jl w jezyku Julia
+
+3. WYNIKI ORAZ ICH INTERPRETACJA
+--------------------------------------------------------------------------------
+
+3.1 Wyniki obliczen numerycznych
+
+x     | f(x)              | e^(-x)           | 1 + e^(-x)
+------|-------------------|------------------|------------------
+1.0   | 0.8515            | 3.68e-01         | 1.3679
+5.0   | 0.9966            | 6.74e-03         | 1.0067
+10.0  | 0.9999            | 4.54e-05         | 1.0000454
+20.0  | 1.00000003        | 2.06e-09         | 1.0000000021
+30.0  | 0.999             | 9.36e-14         | 1.0000000000001
+40.0  | 0.0 (BLAD!)       | 4.25e-18         | 1.0 (zaokr.)
+50.0  | 0.0               | 1.93e-22         | 1.0 (zaokr.)
+100.0 | 0.0               | 3.72e-44         | 1.0 (zaokr.)
+700.0 | 0.0               | 9.86e-305        | 1.0 (zaokr.)
+
+3.2 Interpretacja wynikow
+
+Faza 1 (x < 20): Funkcja monotomicznie zmierza do wartosci 1. Obliczenia sa
+poprawne.
+
+Faza 2 (x ≈ 20-30): Funkcja oscyluje wokol wartosci 1 z niewielkimi bledami
+numerycznymi (x=20: f(x)=1.00000003, x=30: f(x)=0.999).
+
+Faza 3 (x >= 40): KATASTROFALNA UTRATA PRECYZJI
+- f(x) = 0.0 (zamiast poprawnej wartosci 1.0)
+- Wszystkie wyniki sa bledne!
+
+3.3 Analiza zjawiska
+
+Przyczyna problemu:
+1. Dla x=40: e^(-40) ≈ 4.25x10^(-18)
+2. W arytmetyce Float64 epsilon maszynowy wynosi ≈ 2.22x10^(-16)
+3. Gdy e^(-x) staje sie znacznie mniejsze od macheps, operacja 1 + e^(-x)
+   w arytmetyce zmiennopozycyjnej daje wynik dokladnie 1.0 (zaokraglenie!)
+4. Wtedy: ln(1 + e^(-x)) = ln(1.0) = 0.0
+5. W rezultacie: f(x) = e^x * 0 = 0 (BLAD!)
+
+To jest klasyczny przyklad utraty cyfr znaczacych (catastrophic cancellation).
+
+4. WNIOSKI
+--------------------------------------------------------------------------------
+1. Ograniczenia arytmetyki zmiennopozycyjnej: Arytmetyka Float64 ma precyzje
+   ~15-17 cyfr dziesietnych. Dla wartosci e^(-x) < macheps operacja 1+e^(-x)
+   jest numerycznie nierozroznialna od 1.0, co prowadzi do katastrofalnej
+   utraty precyzji.
+
+2. Rozbieznosc miedzy teoria a praktyka: Chociaz matematycznie lim(x->inf)
+   f(x) = 1, numerycznie dla x>40 otrzymujemy f(x)=0. Wykres nie zgadza sie
+   z obliczona granica dla duzych x.
+
+3. Znaczenie stabilnosci numerycznej: Problem mozna czesc uniknac stosujac
+   alternatywne formy obliczeniowe (np. f(x) ≈ 1 dla duzych x) lub arytmetyke
+   o wyzszej precyzji.
+
+4. Praktyczny wniosek: Przy implementacji algorytmow numerycznych nalezy
+   zawsze uwzgledniac mozliwosc utraty precyzji i stosowac numerycznie stabilne
+   formy obliczen. Nie mozna slepo ufac wynikom komputera - nalezy je
+   weryfikowac z analiza matematyczna.
+
+5. Szczegolna uwaga dla funkcji z logarytmami: Funkcje zawierajace ln(1+x)
+   dla malych x sa szczegolnie podatne na bledy numeryczne. Istnieja specjalne
+   funkcje (np. log1p(x)) zaprojektowane do obliczania ln(1+x) z wieksza
+   precyzja.
+
+
+ZADANIE 3 - Rozwiazywanie ukladow rownan liniowych
+
+1. KROTKI OPIS PROBLEMU
+--------------------------------------------------------------------------------
+Celem zadania jest zbadanie UWARUNKOWANIA ZADANIA rozwiazywania ukladu rownan
+liniowych Ax = b oraz porownanie STABILNOSCI NUMERYCZNEJ dwoch metod:
+- Eliminacja Gaussa: x = A\b
+- Macierz odwrotna: x = inv(A)*b
+
+Eksperymenty przeprowadzono dla dwoch typow macierzy:
+- (a) Macierz Hilberta H_n: klasyczna zle uwarunkowana macierz, stopien
+  n = 1, 2, ..., 20
+- (b) Macierz losowa R_n: z kontrolowanym wskaznikiem uwarunkowania c, dla
+  n = 5, 10, 20 oraz c = 1, 10, 10^3, 10^7, 10^12, 10^16
+
+Wektor prawych stron b obliczamy jako b = A*x, gdzie x = [1,1,...,1]^T, wiec
+znamy dokladne rozwiazanie. Porownujemy obliczone x̃ z dokladnym x, liczac
+bledy wzgledne.
+
+2. ROZWIAZANIE
+--------------------------------------------------------------------------------
+Zaimplementowano:
+- Funkcje hilb(n) - generuje macierz Hilberta
+- Funkcje matcond(n, c) - generuje macierz losowa z zadanym wskaznikiem
+  uwarunkowania
+- Funkcje test_system(A, n, label) - rozwiazuje Ax=b obiema metodami i
+  oblicza:
+  * Wskaznik uwarunkowania: cond(A)
+  * Rzad macierzy: rank(A)
+  * Bledy wzgledne: ||x̃ - x|| / ||x||
+
+Dla kazdej macierzy testowej:
+1. Tworzymy wektor b = A * [1,1,...,1]^T
+2. Rozwiazujemy Ax = b metoda Gaussa: x₁ = A\b
+3. Rozwiazujemy metoda odwrotna: x₂ = inv(A)*b
+4. Obliczamy bledy wzgledne dla obu metod
+
+3. WYNIKI ORAZ ICH INTERPRETACJA
+--------------------------------------------------------------------------------
+
+3.1 Macierz Hilberta
+
+n  | cond(A)   | rank(A) | Blad Gauss | Blad inv(A)
+---|-----------|---------|------------|-------------
+2  | 1.93e+01  | 2       | 5.66e-16   | 1.40e-15
+5  | 4.77e+05  | 5       | 1.68e-12   | 3.35e-12
+10 | 1.60e+13  | 10      | 8.67e-05   | 2.50e-04
+15 | 3.68e+17  | 12      | 4.70e+00   | 7.34e+00
+20 | 1.15e+18  | 13      | 1.08e+02   | 1.14e+02
+
+Interpretacja:
+- Wykadniczy wzrost cond(A): Wskaznik uwarunkowania rosnie niezwykle szybko
+  - od ~20 dla n=2 do ~10^18 dla n=20
+- Utrata rzedu macierzy: Dla n>=11 rzad macierzy jest mniejszy od n (macierz
+  staje sie numerycznie osobliwa!)
+- Katastrofalne bledy: Dla n=20 blad wzgledny wynosi ~100, co oznacza, ze
+  rozwiazanie jest CAKOWICIE NIEPOPRAWNE
+- Obie metody zawodza: Dla bardzo zle uwarunkowanych macierzy (n>=15) obie
+  metody daja bledy rzedu 1-100
+
+Wnioski dla Hilberta: Macierz Hilberta jest przykladem EKSTREMALNIE ZLE
+UWARUNKOWANEGO zadania. Juz dla n=12 wskaznik uwarunkowania ~10^16 osiaga
+granice precyzji Float64 (epsilon maszynowy ~10^-16), co prowadzi do
+calkowitej utraty dokladnosci.
+
+3.2 Macierz losowa - Wybrane wyniki
+
+n=5:
+c       | cond(A)   | rank(A) | Blad Gauss | Blad inv(A)
+--------|-----------|---------|------------|-------------
+1e+00   | 1.00e+00  | 5       | 1.72e-16   | 0.00e+00
+1e+03   | 1.00e+03  | 5       | 4.75e-14   | 4.35e-14
+1e+07   | 1.00e+07  | 5       | 4.27e-10   | 3.09e-10
+1e+12   | 1.00e+12  | 5       | 1.30e-05   | 1.49e-05
+1e+16   | 6.28e+15  | 4       | 2.99e-01   | 2.02e-01
+
+n=20:
+c       | cond(A)   | rank(A) | Blad Gauss | Blad inv(A)
+--------|-----------|---------|------------|-------------
+1e+00   | 1.00e+00  | 20      | 4.85e-16   | 3.97e-16
+1e+03   | 1.00e+03  | 20      | 3.19e-14   | 3.26e-14
+1e+07   | 1.00e+07  | 20      | 2.72e-11   | 2.34e-11
+1e+12   | 1.00e+12  | 20      | 3.79e-05   | 3.58e-05
+1e+16   | 7.69e+15  | 19      | 8.03e-02   | 4.34e-02
+
+Interpretacja dla macierzy losowej:
+- Zwiazek miedzy cond(A) a bledem: Widoczna jest wyrazna LINIOWA ZALEZNOSC
+  miedzy wskaznikiem uwarunkowania a bledem wzglednym:
+  * cond(A) ≈ 1 -> blad ≈ 10^-16 (precyzja maszynowa)
+  * cond(A) ≈ 10^12 -> blad ≈ 10^-5
+  * cond(A) ≈ 10^16 -> blad ≈ 0.1
+
+- Teoretyczna zaleznosc: Blad wzgledny ≈ cond(A) x epsilon_maszynowy
+  * Dla cond(A)=10^12: 10^12 x 10^-16 = 10^-4 (zgadza sie!)
+  * Dla cond(A)=10^16: 10^16 x 10^-16 = 1 (zgadza sie!)
+
+- Utrata rzedu: Dla c=10^16 macierze traca pelny rzad (rank < n), co wskazuje
+  na numeryczna osobliwosc
+
+3.3 Porownanie metod
+
+Statystyka dla macierzy losowych:
+- Eliminacja Gaussa lepsza: 6/18 przypadkow (33.3%)
+- Metoda inv(A) lepsza: 12/18 przypadkow (66.7%)
+
+Analiza:
+1. Dla dobrze uwarunkowanych macierzy (c<=10^7): Obie metody daja bardzo
+   podobne wyniki, roznice sa minimalne i oba sa blisko precyzji maszynowej
+
+2. Dla sredniej uwarunkowania (c=10^12): Wyniki nadal bardzo podobne, czasem
+   Gauss lepszy, czasem inv(A)
+
+3. Dla zlego uwarunkowania (c=10^16): Tutaj widac roznice - inv(A) czesciej
+   lepsza
+
+ZASKAKUJACY WYNIK! Teoratycznie eliminacja Gaussa powinna byc bardziej
+stabilna, ale w praktyce dla tych konkretnych macierzy losowych metoda inv(A)
+czesciej dawala lepsze wyniki.
+
+Wyjasnienie:
+- Eliminacja Gaussa jest teoretycznie bardziej stabilna dla OGOLNYCH macierzy
+- Macierze losowe generowane przez matcond() maja specjalna strukture (rozklad
+  SVD), ktora moze byc korzystna dla obliczania inv(A)
+- Dla MACIERZY HILBERTA (prawdziwie zle uwarunkowanych) Gauss jest zazwyczaj
+  lepszy
+- Roznice sa niewielkie i obie metody zawodza dla bardzo zlego uwarunkowania
+
+4. WNIOSKI
+--------------------------------------------------------------------------------
+1. Wskaznik uwarunkowania determinuje dokladnosc: Istnieje wyrazna zaleznosc
+   miedzy cond(A) a bledem wzglednym. Dla macierzy z cond(A) ≈ 10^k, blad
+   wzgledny wynosi w przyblizeniu 10^(k-16) w arytmetyce Float64.
+
+2. Granica obliczalnosci: Gdy cond(A) > 10^16 (odwrotnosc epsilona
+   maszynowego), zadanie staje sie praktycznie nierozwiazywalne w arytmetyce
+   Float64. Macierz jest numerycznie osobliwa.
+
+3. Macierz Hilberta - ekstremalne zle uwarunkowanie: Juz dla n=12 macierz
+   Hilberta osiaga granice obliczalnosci. Dla n>=15 rozwiazanie jest
+   cakowicie bledne (blad ~1-100). Macierz traci pelny rzad numeryczny.
+
+4. Porownanie metod - niespodzianki: Wbrew intuicji, dla testowanych macierzy
+   losowych metoda inv(A)*b czesciej dawala lepsze wyniki niz eliminacja
+   Gaussa. Jednak:
+   - Roznice sa zazwyczaj niewielkie
+   - Dla prawdziwie zlych macierzy (jak Hilbert) obie metody zawodza podobnie
+   - W praktyce zaleca sie eliminacje Gaussa (A\b) ze wzgledu na ogolna
+     stabilnosc
+
+5. Praktyczne zastosowania:
+   - Zawsze sprawdzaj cond(A) przed rozwiazaniem ukladu
+   - Jesli cond(A) > 10^10, wyniki moga byc niewiarygodne
+   - Jesli cond(A) > 10^14, rozważ metody regularyzacji lub arytmetyke
+     wyzszej precyzji
+   - Unikaj obliczania inv(A) jesli to mozliwe - uzywaj A\b
+
+6. Zwiazek teorii z praktyka: Eksperymenty potwierdzaja teoretyczny wzor na
+   blad: ||x̃ - x|| / ||x|| ≈ cond(A) x epsilon_maszynowy, co doskonale
+   widac dla macierzy losowych.
+
+
+ZADANIE 4 - "Zlosliwy wielomian" Wilkinsona
+
+1. KROTKI OPIS PROBLEMU
+--------------------------------------------------------------------------------
+Zadanie dotyczy analizy "zlosliwego wielomianu" Wilkinsona - klasycznego
+przykladu ekstremalnie zlego uwarunkowania numerycznego. Wielomian w postaci
+iloczynowej:
+
+p(x) = (x-1)(x-2)(x-3)...(x-19)(x-20)
+
+ma 20 dokladnie znanych pierwiastkow rzeczywistych: 1, 2, 3, ..., 20.
+
+Po rozwinięciu do postaci naturalnej otrzymujemy:
+P(x) = x^20 - 210x^19 + 20615x^18 - ... + 2432902008176640000
+
+Cel zadania:
+- (a) Obliczyc pierwiastki P(x) numerycznie i sprawdzic, jak bardzo roznia sie
+  od prawdziwych wartosci
+- (b) Zmienic wspolczynnik -210 na -210 - 2^(-23) ≈ -210.00000012 (zmiana
+  o ~10^-7) i zbadac wplyw tej mikroskopijnej perturbacji na pierwiastki
+
+2. ROZWIAZANIE
+--------------------------------------------------------------------------------
+Zaimplementowano:
+1. Funkcje p_wilkinson(x) - oblicza wartosc w postaci iloczynowej
+   (x-1)(x-2)...(x-20)
+2. Funkcje P_wilkinson(x, coeffs) - oblicza wartosc w postaci naturalnej
+3. Funkcje analyze_roots() - analizuje obliczone pierwiastki:
+   - |P(z_k)| - wartosc wielomianu P w punkcie z_k
+   - |p(z_k)| - wartosc wielomianu p w punkcie z_k
+   - |z_k - k| - odleglosc od prawdziwego pierwiastka
+
+Uzywamy funkcji roots() z pakietu Polynomials do numerycznego obliczania
+pierwiastkow.
+
+3. WYNIKI ORAZ ICH INTERPRETACJA
+--------------------------------------------------------------------------------
+
+3.1 Czesc (a) - Wielomian oryginalny
+
+Wybrane pierwiastki:
+
+k  | z_k (obliczony) | |P(z_k)|  | |p(z_k)|  | |z_k - k|
+---|-----------------|----------|----------|------------
+1  | 1.000000000000  | 3.67e+04 | 3.66e+04 | 3.01e-13
+5  | 5.000000665770  | 2.27e+07 | 2.09e+07 | 6.66e-07
+10 | 9.990413042482  | 1.22e+10 | 1.26e+10 | 9.59e-03
+14 | 13.914755591802 | 3.59e+11 | 3.55e+11 | 8.52e-02
+20 | 19.999809291237 | 2.08e+13 | 2.32e+13 | 1.91e-04
+
+Maksymalne bledy: |P(z_k)|=2.08x10^13, |p(z_k)|=2.32x10^13, |z_k-k|=0.0852
+
+Interpretacja:
+- Pierwiastki male (1-5): bledy rzedu 10^-7 (bardzo dobre)
+- Pierwiastki srednie (6-12): bledy rzedu 10^-3 do 10^-2 (akceptowalne)
+- Pierwiastki duze (13-17): bledy rzedu 0.025 do 0.085 (duze!)
+- Pierwiastki najwieksze (18-20): bledy znowu maleja
+
+Najgorszy pierwiastek: k=14, blad 0.085 (zamiast 14.0 mamy 13.915)
+
+Wszystkie pierwiastki sa rzeczywiste, co jest poprawne.
+
+3.2 Czesc (b) - Wielomian zaburzony
+
+Perturbacja: -210 -> -210.00000011920929 (zmiana o 1.19x10^-7, czyli
+0.00000006%)
+
+Wybrane pierwiastki:
+
+k  | z_k (obliczony)    | |P(z_k)|  | |p(z_k)|   | |z_k - k|
+---|--------------------|----------|-----------|------------
+1  | 1.000000000000     | 2.09e+04 | 2.00e+04  | 1.64e-13
+8  | 8.007772029099     | 1.16e+09 | 1.87e+10  | 7.77e-03
+9  | 8.915816367933     | 2.68e+09 | 1.37e+11  | 8.42e-02
+10 | 10.095±0.645i      | 2.77e+09 | 1.49e+12  | 6.52e-01
+11 | 10.095±0.645i      | 2.77e+09 | 1.49e+12  | 1.11e+00
+12 | 11.794±1.652i      | 2.67e+10 | 3.30e+13  | 1.67e+00
+13 | 11.794±1.652i      | 2.67e+10 | 3.30e+13  | 2.05e+00
+16 | 16.731±2.813i      | 7.14e+11 | 2.74e+16  | 2.91e+00
+20 | 20.846910215195    | 1.17e+13 | 1.37e+18  | 8.47e-01
+
+Maksymalne bledy: |P(z_k)|=1.17x10^13, |p(z_k)|=1.37x10^18, |z_k-k|=2.91
+
+KATASTROFALNE ZJAWISKA:
+
+1. Pierwiastki zespolone: Pierwiastki 10-19 (10 sztuk!) staly sie ZESPOLONE
+   z czescia urojona do 2.8!
+   - Powinny byc: 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 (rzeczywiste)
+   - Sa: 10.10±0.64i, 11.79±1.65i, 13.99±2.52i, 16.73±2.81i, 19.50±1.94i
+
+2. Ogromne bledy: Maksymalny blad wzrosl z 0.085 do 2.91 - 34 razy wiekszy!
+
+3. Utrata stabilnosci: |p(z_k)| wzroslo z 10^13 do 10^18 - 100 000 razy!
+
+3.3 Porownanie |P(z_k)| vs |p(z_k)|
+
+Dla wielomianu oryginalnego:
+- |P(z_k)| ≈ 10^4 do 10^13
+- |p(z_k)| ≈ 10^4 do 10^13
+- Podobne wartosci - obie formy daja podobne wyniki
+
+Dla wielomianu zaburzonego:
+- |P(z_k)| ≈ 10^4 do 10^13 (podobnie jak przed zaburzeniem)
+- |p(z_k)| ≈ 10^4 do 10^18 (wzrost o 5 rzedow wielkosci!)
+
+Wnioski:
+- Postac naturalna P(x) jest NIESTABILNA - male zmiany wspolczynnikow -> duze
+  zmiany pierwiastkow
+- Postac iloczynowa p(x) jest STABILNA - gdybysmy mieli ja w tej postaci,
+  nie byleby problemu
+
+4. WNIOSKI
+--------------------------------------------------------------------------------
+1. Ekstremalne zle uwarunkowanie: Problem obliczania pierwiastkow wielomianu
+   w postaci naturalnej jest ekstremalnie zle uwarunkowany. Wspolczynniki
+   roznia sie o 16 rzedow wielkosci (10^18 / 10^2 ≈ 10^16), co prowadzi do
+   katastrofalnej utraty dokladnosci.
+
+2. Mikroskopijne zmiany -> gigantyczne skutki: Zmiana jednego wspolczynnika
+   o 0.00000006% (1.19x10^-7) spowodowala:
+   - 10 pierwiastkow rzeczywistych stalo sie zespolonymi
+   - Maksymalny blad wzrosl 34 razy (z 0.085 do 2.91)
+   - Wartosc |p(z_k)| wzrosla 100 000 razy
+   - To jest wzmocnienie bledu o 10^7 razy!
+
+3. Wskaznik wzmocnienia bledu: Jezeli wspolczynnik zmienil sie o ε ≈ 10^-7,
+   a pierwiastki zmienily sie o ~3, to wskaznik wzmocnienia wynosi
+   ~3/10^-7 ≈ 3x10^7. To potwierdza ekstremalne zle uwarunkowanie.
+
+4. Arytmetyka Float64 jest niewystarczajaca: Mimo 15-17 cyfr znaczacych,
+   arytmetyka Float64 nie radzi sobie z tym problemem. Wspolczynniki maja
+   rzad wielkosci 10^18, a pierwiastki sa w zakresie 1-20, co prowadzi do
+   nieuniknionych bledow zaokraglen.
+
+5. Postac iloczynowa jest stabilna: Gdyby wielomian byl dany w postaci
+   p(x)=(x-1)(x-2)...(x-20), nie byleby zadnego problemu. Problem lezy w
+   REPREZENTACJI (postaci naturalnej), a nie w samym wielomianie.
+
+6. Wnioski praktyczne:
+   - NIGDY nie obliczaj pierwiastkow wielomianow wysokiego stopnia z postaci
+     naturalnej
+   - Uzywaj metod numerycznych odpornych na bledy (np. metoda towarzyszacej
+     macierzy z pivotingiem)
+   - Jesli to mozliwe, pracuj z postacia iloczynowa
+   - Problem Wilkinsona to klasyczny przyklad w literaturze pokazujacy granice
+     arytmetyki zmiennopozycyjnej
+
+7. Historia: James H. Wilkinson odkryl to zjawisko w latach 60. XX wieku
+   i opisal je w swoim slynnym artykule. To jeden z najwazniejszych przykladow
+   w analizie numerycznej pokazujacy, ze "poprawny" algorytm moze dawac
+   cakowicie bledne wyniki ze wzgledu na zle uwarunkowanie problemu.
+
+
+ZADANIE 5 - Model logistyczny (wzrost populacji)
+
+1. KROTKI OPIS PROBLEMU
+--------------------------------------------------------------------------------
+Zadanie dotyczy analizy modelu logistycznego (modelu wzrostu populacji)
+opisanego rownaniem rekurencyjnym:
+
+p_{n+1} = p_n + r*p_n*(1 - p_n)
+
+gdzie:
+- p_n - procent maksymalnej wielkosci populacji w iteracji n
+- r = 3 - stala wzrostu (czynnik wzrostu populacji)
+- p_0 = 0.01 - poczatkowa wielkosc populacji (1% maksimum)
+
+Cel: Zbadac stabilnosc numeryczna i wrazliwosc na male perturbacje tego
+chaotycznego ukladu dynamicznego.
+
+Eksperymenty:
+1. Porownanie normalnych iteracji z iteracjami, w ktorych po 10. kroku
+   obcinamy wynik do 0.722 (Float32)
+2. Porownanie obliczen w arytmetyce Float32 vs Float64
+
+2. ROZWIAZANIE
+--------------------------------------------------------------------------------
+Zaimplementowano:
+1. Funkcje logistic_step(p, r, T) - oblicza jedna iteracje modelu w arytmetyce
+   typu T
+2. Funkcje logistic_iterations(p0, r, n, T) - wykonuje n iteracji standardowych
+3. Funkcje logistic_iterations_truncated(...) - wykonuje iteracje z obcieciem
+   wyniku po k-tej iteracji
+
+Dla kazdego eksperymentu wykonano 40 iteracji i porownano trajektorie.
+
+3. WYNIKI ORAZ ICH INTERPRETACJA
+--------------------------------------------------------------------------------
+
+3.1 Eksperyment 1 - Wplyw obciecia wyniku
+
+Perturbacja: Po 10. iteracji obcięto wynik z 0.722930610179901 do 0.722
+- Wielkosc perturbacji: 9.31x10^-4 (mniej niz jedna tysięczna!)
+
+Ewolucja roznicy:
+
+Iteracja | p_n (normalne) | p_n (obciete) | Roznica  | Wzmocnienie
+---------|----------------|---------------|----------|-------------
+10       | 0.722930610    | 0.722000003   | 9.31e-04 | 1x
+14       | 0.521925986    | 0.507380366   | 1.45e-02 | 16x
+19       | 0.165524721    | 0.577893019   | 4.12e-01 | 443x
+24       | 0.996440709    | 0.949758232   | 4.67e-02 | 50x
+29       | 1.106519818    | 0.597985566   | 5.09e-01 | 547x
+34       | 0.989278078    | 1.324717283   | 3.35e-01 | 360x
+40       | 0.258605480    | 1.093567967   | 8.35e-01 | 897x
+
+Maksymalna roznica: 1.26 (iteracja 32) - wzmocnienie 1350 razy!
+
+Interpretacja:
+- Perturbacja rzedu 10^-3 prowadzi po 40 iteracjach do roznicy rzedu 1.0
+- Trajektorie sa kompletnie rozne - nie maja juz ze soba nic wspolnego
+- To jest klasyczny efekt motyla: male przyczyny -> gigantyczne skutki
+- Po ~20 iteracjach roznice staja sie porownywalne z wartosciami samych
+  zmiennych
+- Uklad wykazuje chaotyczne zachowanie z dodatnim wykladnikiem Lapunowa
+
+3.2 Eksperyment 2 - Float32 vs Float64
+
+Poczatkowa roznica: 2.24x10^-10 (blad zaokraglenia w reprezentacji 0.01)
+
+Ewolucja roznicy:
+
+Iteracja | Float32        | Float64        | Roznica    | Wzrost bledu
+---------|----------------|----------------|------------|---------------
+0        | 0.010000000    | 0.010000000    | 2.24e-10   | 1x
+4        | 1.288978100    | 1.288978001    | 9.86e-08   | 440x
+9        | 0.215592861    | 0.215586839    | 6.02e-06   | 27,000x
+14       | 0.521925986    | 0.521670621    | 2.55e-04   | 1.1x10^6
+19       | 0.165524721    | 0.171084847    | 5.56e-03   | 2.5x10^7
+24       | 0.996440709    | 0.743575676    | 2.53e-01   | 1.1x10^9
+29       | 1.106519818    | 1.232112462    | 1.26e-01   | 5.6x10^8
+34       | 0.989278078    | 0.297906941    | 6.91e-01   | 3.1x10^9
+39       | 1.265200377    | 0.002909157    | 1.26e+00   | 5.6x10^9
+40       | 0.258605480    | 0.011611238    | 2.47e-01   | 1.1x10^9
+
+Maksymalna roznica: 1.26 (iteracja 39)
+Wzmocnienie bledu: Z 2.24x10^-10 do 1.26 -> 5.6 MILIARDA razy!
+
+Interpretacja:
+- Mikroskopijny blad poczatkowy (10^-10) urasta do 1.26 po 40 iteracjach
+- Float32 i Float64 daja kompletnie rozne wyniki mimo tej samej formuly
+- Wykladniczy wzrost bledu potwierdza chaotyczna nature ukladu
+- Po ~25 iteracjach przewidywanie staje sie niemozliwe nawet z Float64
+- Nawet nieskonczona precyzja nie uratowałaby sytuacji w dlugim czasie
+  (chaos fundamentalny, nie numeryczny)
+
+3.3 Analiza wzrostu bledu
+
+Wykladnik Lapunowa λ mozna oszacowac z: |δp_n| ≈ |δp_0| * e^(λ*n)
+
+Dla eksperymentu 1:
+- δp_10 = 9.31x10^-4, δp_40 ≈ 1.26
+- 1.26 ≈ 9.31x10^-4 × e^(λx30)
+- λ ≈ ln(1354)/30 ≈ 0.24 na iteracje
+
+To oznacza, ze bledy podwajaja sie co ~3 iteracje!
+
+4. WNIOSKI
+--------------------------------------------------------------------------------
+1. Chaos deterministyczny: Model logistyczny z r=3 jest przykladem chaosu
+   deterministycznego. Mimo ze rownanie jest calkowicie deterministyczne
+   (znamy dokladny wzor), zachowanie ukladu jest nieprzewidywalne w dlugim
+   czasie ze wzgledu na ekstremalna wrazliwosc na warunki poczatkowe.
+
+2. Efekt motyla: Zademonstrowano klasyczny efekt motyla z teorii chaosu:
+   - Perturbacja 9x10^-4 -> roznica 1.26 po 40 iteracjach (wzmocnienie 1350x)
+   - Blad zaokraglenia 2x10^-10 -> roznica 1.26 po 40 iteracjach
+     (wzmocnienie 5.6 miliarda razy!)
+   - Male przyczyny prowadza do gigantycznych skutkow
+
+3. Dodatni wykladnik Lapunowa: Oszacowany wykladnik Lapunowa λ ≈ 0.24 oznacza,
+   ze male perturbacje rosna wykladniczo w czasie. Bledy podwajaja sie co
+   ~3 iteracje, co czyni dlugoterminowe przewidywanie niemozliwym.
+
+4. Precyzja arytmetyki nie eliminuje chaosu:
+   - Float32 (~7 cyfr) i Float64 (~15 cyfr) daja rozne wyniki juz po
+     20 iteracjach
+   - Wyzsza precyzja wydluza horyzont przewidywalnosci, ale nie eliminuje
+     chaosu
+   - Nawet arytmetyka o dowolnej precyzji bylaby bezradna w nieskonczonosci
+     czasowej
+
+5. Granica przewidywalnosci:
+   - W Float32: przewidywanie mozliwe do ~15-20 iteracji
+   - W Float64: przewidywanie mozliwe do ~25-30 iteracji
+   - Po tym czasie trajektorie staja sie calkowicie niezalezne od warunkow
+     poczatkowych
+
+6. Implikacje praktyczne:
+   - Prognoza pogody: Atmosfera to uklad chaotyczny, dlatego prognozy ponad
+     7-10 dni sa niewiarygodne (mimo poteznych komputerow!)
+   - Systemy dynamiczne: Dla ukladow chaotycznych niemozliwe jest
+     dlugoterminowe przewidywanie, niezaleznie od mocy obliczeniowej
+   - Bledy pomiarowe: W ukladach chaotycznych nawet najdokładniejsze pomiary
+     nie pozwalaja na dlugoterminowe przewidywanie
+   - Symulacje komputerowe: Musza uwzgledniac ograniczona przewidywalnosc
+     ukladow chaotycznych
+
+7. Roznica miedzy bledem numerycznym a chaosem:
+   - Blad numeryczny: Wynika z ograniczonej precyzji arytmetyki (mozna
+     poprawic uzywajac wyzszej precyzji)
+   - Chaos: Jest wlasnoscia fizyczna ukladu, nie bledem numerycznym (nie da
+     sie wyeliminowac wyzszą precyzja)
+   - W naszym przypadku: oba zjawiska nakladaja sie, ale chaos dominuje
+
+8. Teoria chaosu - podsumowanie:
+   - Uklad jest deterministyczny (znamy dokladne rownania)
+   - Zachowanie jest nieprzewidywalne (ekstremalna wrazliwosc na warunki
+     poczatkowe)
+   - Male roznice rosna wykladniczo (dodatni wykladnik Lapunowa)
+   - Przewidywanie dlugoterminowe jest fundamentalnie niemozliwe (nie ze
+     wzgledu na bledy, ale z natury ukladu)
+
+
+ZADANIE 6 - Rownanie rekurencyjne x_{n+1} = x_n^2 + c
+
+1. KROTKI OPIS PROBLEMU
+--------------------------------------------------------------------------------
+Zadanie dotyczy analizy rownania rekurencyjnego:
+
+x_{n+1} = x_n^2 + c
+
+gdzie c jest stala parametrem.
+
+To jest fundamentalne rownanie z teorii ukladow dynamicznych i fraktali -
+podstawa zbiorow Julii i Mandelbrota. Dla roznych wartosci c i x_0 uklad
+moze wykazywac:
+- Zbieznosc do punktow stalych
+- Rozbieznosc do nieskonczonosci
+- Cykle okresowe
+- Chaotyczne zachowanie
+
+Eksperymenty (40 iteracji, Float64):
+1. c = -2, x_0 = 1
+2. c = -2, x_0 = 2
+3. c = -2, x_0 = 1.99999999999999 (roznica 10^-14 od exp. 2)
+4. c = -1, x_0 = 1
+5. c = -1, x_0 = -1
+6. c = -1, x_0 = 0.75
+7. c = -1, x_0 = 0.25
+
+2. ROZWIAZANIE
+--------------------------------------------------------------------------------
+Zaimplementowano:
+1. Funkcje iterate_quadratic(x, c) - oblicza jedna iteracje x² + c
+2. Funkcje analyze_sequence(x0, c, n, label) - wykonuje n iteracji i analizuje
+   zachowanie:
+   - Wykrywa zbieznosc do punktu stalego
+   - Wykrywa rozbieznosc (|x| > 10^10)
+   - Wykrywa cykle okresowe
+   - Identyfikuje chaotyczne zachowanie
+3. Analiza teoretyczna - oblicza punkty stale, bada stabilnosc, omawia teorie
+   fraktali
+
+Dla kazdego eksperymentu wykonano 40 iteracji w arytmetyce Float64.
+
+3. WYNIKI ORAZ ICH INTERPRETACJA
+--------------------------------------------------------------------------------
+
+3.1 Punkty stale - teoria
+
+Punkty stale spelniaja: x* = (x*)² + c, czyli: (x*)² - x* + c = 0
+Rozwiazania: x* = (1 ± sqrt(1-4c)) / 2
+
+Dla c = -2:
+- x*₁ = (1 + sqrt(9)) / 2 = 2.0
+- x*₂ = (1 - sqrt(9)) / 2 = -1.0
+
+Dla c = -1:
+- x*₁ = (1 + sqrt(5)) / 2 ≈ 1.618 (zloty podzial φ!)
+- x*₂ = (1 - sqrt(5)) / 2 ≈ -0.618
+
+3.2 Eksperyment 1: c=-2, x_0=1
+
+Wyniki:
+- x_0 = 1.0
+- x_1 = 1² - 2 = -1.0
+- x_2 = (-1)² - 2 = -1.0
+- x_n = -1.0 dla wszystkich n >= 1
+
+Interpretacja: Ciag natychmiast zbiega do punktu stalego x*=-1. Po pierwszej
+iteracji osiaga punkt staly i tam pozostaje.
+
+3.3 Eksperyment 2: c=-2, x_0=2
+
+Wyniki:
+- x_n = 2.0 dla wszystkich n >= 0
+
+Interpretacja: x_0=2 juz jest punktem stalym: 2² - 2 = 2. Ciag pozostaje
+w punkcie stalym na zawsze. Mimo ze punkt ten jest teoretycznie niestabilny
+(f'(2)=4 > 1), jesli zaczynamy dokladnie w nim, tam pozostajemy.
+
+3.4 Eksperyment 3: c=-2, x_0=1.99999999999999
+
+Wyniki:
+
+n  | x_n      | Roznica od exp. 2
+---|----------|-------------------
+0  | 2.00000  | 1.0x10^-14
+5  | 1.99999  | 1.0x10^-11
+10 | 1.99999  | 4.8x10^-9
+20 | 1.989    | 1.1x10^-2
+25 | -1.955   | 3.96
+40 | -0.329   | 2.33
+
+Interpretacja: DRAMATYCZNA wrazliwosc na warunki poczatkowe!
+
+- Poczatkowa roznica: 10^-14 (blad zaokraglenia)
+- Po 40 iteracjach: roznica 2.33
+- Wzmocnienie: 2.3x10^14 razy!
+
+Ciag nie zbiega do punktu stalego, ale wykazuje chaotyczne oscylacje
+w przedziale [-2, 2]. Punkt x*=2 jest niestabilny - nawet mikroskopujna
+perturbacja powoduje odejscie od niego i chaotyczne wloczenie sie po zbiorze
+Julii.
+
+To pokazuje, ze x_0=2 jest na granicy zbioru Julii - wewnatrz zbioru (x<2)
+ciag jest ograniczony i chaotyczny, ale dokladnie w x=2 "zatrzymuje sie"
+w punkcie stalym.
+
+3.5 Eksperymenty 4-7: c=-1, rozne x_0
+
+Wszystkie cztery eksperymenty prowadza do tego samego cyklu 2-okresowego:
+
+x_2k = -1.0
+x_2k+1 = 0.0
+
+Czyli: -1 -> 0 -> -1 -> 0 -> -1 -> ...
+
+Weryfikacja cyklu:
+- f(-1) = (-1)² - 1 = 0 (OK)
+- f(0) = 0² - 1 = -1 (OK)
+
+Szczegoly dla kazdego:
+
+Eksperyment | x_0   | Zachowanie
+------------|-------|----------------------------------------------
+4           | 1.0   | x_1=0, x_2=-1, potem cykl 0<->-1
+5           | -1.0  | x_1=0, x_2=-1, potem cykl 0<->-1
+6           | 0.75  | Oscyluje, po ~15 iteracjach wchodzi w cykl
+7           | 0.25  | Oscyluje, po ~10 iteracjach wchodzi w cykl
+
+Interpretacja: Dla c=-1, punkty stale x*₁≈1.618 i x*₂≈-0.618 sa niestabilne.
+Zamiast tego istnieje stabilny cykl 2-okresowy {-1, 0}, ktory przyciaga
+prawie wszystkie trajektorie z pewnego obszaru (zbior Julii).
+
+To jest przyklad bifurkacji podwojenia okresu - gdy punkty stale traca
+stabilnosc, powstaja stabilne cykle okresowe.
+
+4. WNIOSKI
+--------------------------------------------------------------------------------
+1. Bogate zachowania dynamiczne: Proste rownanie x_{n+1} = x_n² + c generuje
+   niezwykle zlozone i roznorodne zachowania: punkty stale, cykle okresowe,
+   chaos, fraktale.
+
+2. Zbior Julii: Dla danego c, zbior Julii to zbior punktow x_0, dla ktorych
+   ciag pozostaje ograniczony:
+   - c=-2: zbior Julii = odcinek [-2, 2]
+   - c=-1: zbior Julii to bardziej zlozony fraktal
+   - Punkty poza zbiorem Julii uciekaja do nieskonczonosci
+
+3. Ekstremalna wrazliwosc (eksperyment 3): Roznica 10^-14 -> roznica 2.33
+   po 40 iteracjach
+   - Wzmocnienie: 2.3x10^14 razy!
+   - Punkt x_0=2 jest na granicy zbioru Julii - ekstremalnie niestabilny
+   - To pokazuje fraktalna nature granicy: nieskonczona zlozosc w dowolnie
+     malej skali
+
+4. Cykle okresowe (c=-1): Wszystkie zbadane punkty poczatkowe zbiegaja do
+   cyklu 2-okresowego {-1, 0}. To pokazuje bifurkacje podwojenia okresu -
+   gdy punkty stale traca stabilnosc, powstaja stabilne cykle.
+
+5. Zloty podzial: Dla c=-1, niestabilny punkt staly x*≈1.618 to zloty podzial
+   φ = (1+sqrt(5))/2. Drugie rozwiazanie to -1/φ ≈ -0.618. Zloty podzial
+   pojawia sie naturalnie w teorii chaosu!
+
+6. Zwiazek z fraktalami:
+   - To rownanie generuje zbior Mandelbrota (ktore c daja ograniczony ciag
+     dla x_0=0)
+   - Dla stalego c generuje zbior Julii (ktore x_0 daja ograniczony ciag)
+   - Oba zbiory maja fraktalna strukture - nieskonczona zlozosc na kazdej
+     skali
+
+7. Wnioski praktyczne:
+   - Proste rownania moga generowac niezwykle zlozone struktury
+   - Przewidywalnosc zalezna od obszaru: wnetrze zbioru Julii (regularnosc)
+     vs granica (chaos)
+   - Male bledy pomiarowe/obliczeniowe maja katastrofalne skutki na granicy
+     zbioru
+   - To fundamentalna wlasnosc ukladow chaotycznych i podstawa teorii fraktali
+
+8. Porownanie z zadaniem 5:
+   - Zadanie 5 (model logistyczny): chaos w calym obszarze parametrow
+   - Zadanie 6: koegzystencja regularnosci (wnetrze) i chaosu (granica)
+   - Oba pokazuja, ze proste rownania = zlozone zachowania

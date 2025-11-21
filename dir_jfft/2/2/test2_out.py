@@ -1,0 +1,14 @@
+
+def add(a: int, b: int) -> int:
+
+    return a + b
+
+def mult(a: int, b: int) -> int:
+
+
+
+    return a * b
+
+def suffix(l: str) -> str:
+    
+    return f"{l}

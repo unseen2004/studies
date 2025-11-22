@@ -51,3 +51,12 @@ This repository provides a comprehensive C++ library implementing various algori
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## How to Run
+
+To compile and run the tests, you can use the following command from the `algo_lib` directory:
+
+```bash
+g++ -std=c++20 -Iinclude tests/main_test.cpp -o main_test
+./main_test
+```

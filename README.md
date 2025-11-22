@@ -1,46 +1,17 @@
-# 📂 Project Directory Overview
+# Studies Monorepo
 
-This repository contains a collection of projects, experiments, and example implementations across multiple programming languages and domains.
+This repository is a collection of various projects and exercises from my studies.
 
----
+## Subdirectories
 
-## 📝 Apps & Tools
-- [**GlucoApp**](./GlucoApp) – Simple Android note-based application for tracking data.
-- [**Python_jp**](./Python_jp) – Python variant with Japanese keywords.
-- [**cocktails-api**](./cocktails-api) – REST API backend for an example cocktail recipe website.
-- [**webserver_lru_cache_rdma**](./webserver_cache_rdma) – Webserver with LRU-cache and RDMI.
-
----
-
-## ⚡ Concurrency & Parallelism
-### **C++**
-- [**game_of_life**](./dir_concurrent/dir_cpp/game_of_life) – Multithreaded implementation of Conway’s Game of Life.
-- [**costumer_service**](./dir_concurrent/dir_cpp/costumer_service) – Simulation of customer service operations with concurrency.
-- [**parallel_transform**](./dir_concurrent/dir_cpp/parallel_transform) – Example of parallelized data transformation.
-- [**thread_qs**](./dir_concurrent/dir_cpp/thread_qs) – Threading examples and concepts.
-
-### **Go**
-- [**bakery-problem**](./dir_concurrent/dir_go/bakery-problem) – Implementation of the Bakery algorithm for mutual exclusion.
-- [**szymanski-algorithm**](./dir_concurrent/dir_go/szymanski-algorithm) – Distributed mutual exclusion algorithm in Go.
-
----
-
-## ☕ Java Projects
-- [**PascalTriangleVisualizer**](./dir_java/PascalTriangleVisualizer) – Visual representation of Pascal’s Triangle.
-- [**gui**](./dir_java/gui) – Java GUI examples and components.
-- [**javaSimplePaint**](./dir_java/javaSimplePaint) – Simple paint/drawing application.
-- [**javafxPascalTraingle**](./dir_java/javafxPascalTraingle) – Pascal’s Triangle visualizer using JavaFX.
-- [**server**](./dir_java/server) – Java-based server implementation.
-- [**shapeCalculator**](./dir_java/shapeCalculator) – Geometric shape calculator.
-
----
-
-## 🦀 Rust Projects
-- [**minigrep**](./dir_rust/minigrep) – Small grep-like command-line search tool.
-- [**rust_cli**](./dir_rust/rust_cli) – Example Rust CLI project.
-
----
-
-## 🛒 E-commerce Project
-- [**ecommerce-frontend**](./eccommerce-project/ecommerce-frontend) – Frontend web application for the e-commerce project.
-- [**ecommerce-api**](./eccommerce-project/ecommerce-api) – Backend API for handling e-commerce operations.
+*   [algo_lib](https://github.com/unseen2004/studies/tree/main/algo_lib) - A C++ library of common algorithms and data structures.
+*   [dir_aod](https://github.com/unseen2004/studies/tree/main/dir_aod) - C++ programs for the "Algorithms and Data Structures" course.
+*   [dir_concurrent](https://github.com/unseen2004/studies/tree/main/dir_concurrent) - Projects related to concurrent programming in C++ and Go.
+*   [dir_java](https://github.com/unseen2004/studies/tree/main/dir_java) - Various projects written in Java.
+*   [dir_jfft](https://github.com/unseen2004/studies/tree/main/dir_jfft) - Projects for the "Formal Languages and Compiler Theory" course.
+*   [dir_kkd](https://github.com/unseen2004/studies/tree/main/dir_kkd) - Projects related to data compression.
+*   [dir_on](https://github.com/unseen2004/studies/tree/main/dir_on) - Projects for the "Numerical Methods" course.
+*   [dir_prob](https://github.com/unseen2004/studies/tree/main/dir_prob) - Projects related to probability theory.
+*   [dir_rust](https://github.com/unseen2004/studies/tree/main/dir_rust) - Various projects written in Rust.
+*   [dir_scripts](https://github.com/unseen2004/studies/tree/main/dir_scripts) - A collection of utility scripts in C, Python, and shell.
+*   [GlucoApp](https://github.com/unseen2004/studies/tree/main/GlucoApp) - A mobile application for monitoring glucose levels.

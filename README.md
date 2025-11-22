@@ -1,6 +1,7 @@
 # Studies Monorepo
 
 This repository is a collection of various projects and exercises from my studies.
+Use https://github.com/unseen2004/mono-clone to clone specific project.
 
 ## Subdirectories
 

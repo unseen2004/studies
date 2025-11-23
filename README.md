@@ -16,3 +16,26 @@ Use https://github.com/unseen2004/mono-clone to clone specific project.
 *   [dir_rust](https://github.com/unseen2004/studies/tree/main/dir_rust) - Various projects written in Rust.
 *   [dir_scripts](https://github.com/unseen2004/studies/tree/main/dir_scripts) - A collection of utility scripts in C, Python, and shell.
 *   [GlucoApp](https://github.com/unseen2004/studies/tree/main/GlucoApp) - A mobile application for monitoring glucose levels.
+
+<!-- REPOS-CLI:START -->
+[![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)](https://www.rust-lang.org/)
+[![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)](https://www.python.org/)
+[![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)](https://golang.org/)
+
+## Sub-Projects
+
+- **minigrep**
+- **pattern_search**
+- **queue_system**
+- **rust_cli**
+
+## Recent Updates
+
+- Fix formatting in README.md (8b28a82e)
+- readme (c86fbd51)
+- feat: readme (b44b594a)
+- batman (bdcaa139)
+
+
+<!-- REPOS-CLI:END -->

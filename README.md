@@ -20,7 +20,6 @@ Use https://github.com/unseen2004/mono-clone to clone specific project.
 <!-- REPOS-CLI:START -->
 [![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)](https://www.rust-lang.org/)
 [![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)](https://www.python.org/)
-[![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)](https://golang.org/)
 
 ## Sub-Projects
@@ -32,10 +31,11 @@ Use https://github.com/unseen2004/mono-clone to clone specific project.
 
 ## Recent Updates
 
+- restructure (d7694c4a)
+- readme (316bad27)
 - Fix formatting in README.md (8b28a82e)
 - readme (c86fbd51)
 - feat: readme (b44b594a)
-- batman (bdcaa139)
 
 
 <!-- REPOS-CLI:END -->
